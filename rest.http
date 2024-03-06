@@ -1,0 +1,13 @@
+
+POST  http://localhost:3000/auth/registration
+Content-Type: application/json
+
+{
+    "companyName": "NVIDIA",
+    "email": "luka.danelia268@eab.tsu.edu.ge",
+    "country": "Georgia",
+    "industry": "IT",
+    "password":"SOMEPASS"
+}
+
+###
