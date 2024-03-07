@@ -10,7 +10,8 @@ export class Company {
     @Column({ default: 'new' })
     companyName: string
 
-    @Column({ unique: true })
+    // @Column({ unique: true }) for test env
+    @Column()
     email: string;
 
     @Column()

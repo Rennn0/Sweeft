@@ -1,13 +1,27 @@
 
-POST  http://localhost:3000/auth/registration
+# This must be first request to create company in db
+# Then user gets activation email
+# @body _ ICompanyRequest
+
+# p.s. 
+# for siplicity im not encrypting passwords here, but store hash in db 
+# in prod environment everything must be encrypted
+POST  http://localhost:3000/api/auth/registration
 Content-Type: application/json
 
 {
     "companyName": "NVIDIA",
     "email": "luka.danelia268@eab.tsu.edu.ge",
     "country": "Georgia",
-    "industry": "IT",
-    "password":"SOMEPASS"
+    "password":"SOMEPASS",
+    "industry":"IT"
 }
+###
 
+# User will receive activation email and this kind of link
+# After proceeding to url company gets activated
+# works only once
+# @param _ companyId
+GET http://localhost:3000/api/auth/activate/?id=<param>
+Content-Type: application/json
 ###
