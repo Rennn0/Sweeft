@@ -10,7 +10,7 @@ POST  http://localhost:3000/api/auth/registration
 Content-Type: application/json
 
 {
-    "companyName": "NVIDIA",
+    "companyName": "Microsoft",
     "email": "luka.danelia268@eab.tsu.edu.ge",
     "country": "Georgia",
     "password":"SOMEPASS",
@@ -25,3 +25,34 @@ Content-Type: application/json
 GET http://localhost:3000/api/auth/activate/?id=<param>
 Content-Type: application/json
 ###
+
+# GET TOKEN
+# USE THAT TOKEN IN EVERY OTHER REQUEST
+# TOKEN LIFECYCLE IS SERVER
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+    "email":"luka.danelia268@eab.tsu.edu.ge",
+    "password":"newpass"
+}
+###
+@token="GKtlK/o4PUj5AJF8q/TTsCdcvh5JXS/yIcBwuXBK2YXlG5xWIvga2977jlalNYa4C8Qb/ykRDVZzftRSsOCFbhmQc0FlPBLZabzk6OAkAdHCbfN5kdQJAFGwPTDcFrrL78vYyA3Wc1h6XDumvs0L+nS0PPwV5FMKDfD6u7pKoSobixojZnX2lZENwF2euWrpa0wrRj9h/Wwi5HRUHnRhxt8BpK7vQdhFFsXVyNAqoIsck3qd31GuZo2lWsiLSDjWlvcy5XIFf/GKIb9KYw4nVTcHKT/P5l2vaccjwLtPqD54+AEhZIfG0SFPinunRJEjHnL+4U+d+1muccNIgmESvg=="
+
+
+PUT http://localhost:3000/api/content/change/password
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "newPassword":"newpass"
+}
+###
+
+PUT http://localhost:3000/api/content/change/subscription
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "plan":"Free"
+}

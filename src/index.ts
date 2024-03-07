@@ -9,6 +9,8 @@ import { Employee } from './entity/employee';
 import { FileUpload } from './entity/fileUploads';
 import { authRouter } from "./router/auth.router";
 import morgan from "morgan";
+import { contentRouter } from "./router/content.router";
+import { ITokenData } from "./interfaces/ITokenData";
 dotenv.config();
 
 const port = process.env.PORT;
@@ -32,9 +34,18 @@ export const DbContext = new DataSource({
     logging: false,
 })
 
+declare global {
+    namespace Express {
+        interface Request {
+            data: ITokenData
+        }
+    }
+}
+
 app.use(express.json());
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms"));
-app.use('/api/auth', authRouter)
+app.use('/api/auth', authRouter);
+app.use('/api/content', contentRouter);
 
 DbContext.initialize()
     .then(() => console.log("TypeOrm connected successfully"))
