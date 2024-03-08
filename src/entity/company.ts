@@ -5,43 +5,30 @@ import { Employee } from "./employee";
 @Entity()
 export class Company {
     @PrimaryGeneratedColumn()
-    companyId: number;
+    companyId!: number;
 
     @Column({ default: 'new' })
-    companyName: string
+    companyName!: string
 
     // @Column({ unique: true }) for test env
     @Column()
-    email: string;
+    email!: string;
 
     @Column()
-    password: string;
+    password!: string;
 
     @Column()
-    country: string;
+    country!: string;
 
     @Column()
-    industry: string;
+    industry!: string;
 
     @Column({ default: false })
-    isActivated: boolean;
+    isActivated!: boolean;
 
-    @OneToOne(() => SubscriptionTier, sub => sub.tierId)
-    @JoinColumn()
-    subscription: SubscriptionTier | null;
+    @OneToMany(() => SubscriptionTier, sub => sub.company, { eager: false })
+    subscriptions!: SubscriptionTier[];
 
-    @OneToMany(() => Employee, employee => employee.company)
-    employees: Employee[] | null;
-
-    constructor() {
-        this.companyId = 0;
-        this.companyName = '';
-        this.email = '';
-        this.password = '';
-        this.country = '';
-        this.industry = '';
-        this.isActivated = false;
-        this.employees = null;
-        this.subscription = null;
-    }
+    @OneToMany(() => Employee, employee => employee.company, { eager: false })
+    employees!: Employee[];
 }

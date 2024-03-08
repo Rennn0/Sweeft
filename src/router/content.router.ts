@@ -19,13 +19,12 @@ contentRouter.put(
         const contentService = new ContentService();
         const id = req.data.companyId;
         const { newPassword } = req.body;
-        console.log(id, newPassword);
         await contentService.ChangePassword(id, newPassword);
         return res.send(StatusCode.Updated).json({ message: Messages.Updated });
     }
 )
 
-contentRouter.put(
+contentRouter.post(
     "/change/subscription",
     (req: Request, res: Response, next: NextFunction) =>
         _validateRequestBody(req, res, next, new SubChangeRequest()),
@@ -36,7 +35,7 @@ contentRouter.put(
 
         try {
             await ContentService.ChangeSubscription(req.data.companyId, plan);
-            return res.status(StatusCode.Updated).json(Messages.Updated);
+            return res.status(StatusCode.Ok).json({ message: Messages.Updated });
         }
         catch (error) {
             return res.status(StatusCode.Conflict).json(error);

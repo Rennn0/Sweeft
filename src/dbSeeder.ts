@@ -6,40 +6,8 @@ import { Employee } from "./entity/employee";
 import { FileUpload } from "./entity/fileUploads";
 import { DbContext } from ".";
 
-export async function SeedComapny(
-    companyRepo: Repository<Company>,
-    subTypeRepo: Repository<SubscriptionType>,
-    subTierRepo: Repository<SubscriptionTier>
-) {
-    const typeFree = await subTypeRepo.findOne({ where: { tier: 100 } });
-    let freeTier = new SubscriptionTier();
-    let company = new Company();
 
-    freeTier.computedPrice = 0;
-    freeTier.subscriptionType = typeFree;
-    freeTier.activationDate = Date.now();
-
-    company.country = "Georgia";
-    company.email = "Luka@gmail.com";
-    company.industry = "Finance";
-    company.isActivated = true;
-    company.password = "SomePASS";
-
-    await companyRepo
-        .save(company)
-        .then(async () => {
-            freeTier.company = company;
-            company.subscription = freeTier;
-            await subTierRepo.save(freeTier)
-                .then(async () => {
-                    await companyRepo.save(company);
-                })
-                .catch(err => console.error(err));
-        })
-        .catch(err => console.error(err));
-}
-
-// THIS ONLY HAPPENS ONCE
+// THIS IS FIRST AND MUST HAPPEN ONCE
 export async function SeedSubType(subTypeRepo: Repository<SubscriptionType>) {
     let free = new SubscriptionType();
     free.employeeLowerBound = 0;
@@ -74,17 +42,52 @@ export async function SeedSubType(subTypeRepo: Repository<SubscriptionType>) {
     await subTypeRepo.save([free, basic, premium])
 }
 
-
-export async function SeedEmployee(empRepo: Repository<Employee>) {
-    let employee = new Employee();
-    employee.company = await DbContext.getRepository(Company).findOne({ where: { country: "Georgia" } });
-    employee.isAdmin = true;
-    employee.mail = "admin@gmail.com";
-    employee.password = "adminPAss";
-    employee.username = "admin";
-    await empRepo.save(employee);
+// SECOND SEED IS COMPANY
+export async function SeedComapny() {
+    const repoCompany = DbContext.getRepository(Company);
+    const company = new Company();
+    company.companyName = "Intel";
+    company.country = "Georgia";
+    company.email = "some@gmail.com";
+    company.industry = "IT";
+    company.password = "asd";
+    await repoCompany.save(company);
 }
 
-export async function SeedFileUpload(subTypeRepo: Repository<FileUpload>) {
+export async function SeedSubTier() {
+    const repoCompany = DbContext.getRepository(Company);
+    const repoSubType = DbContext.getRepository(SubscriptionType);
+    const repoSubTier = DbContext.getRepository(SubscriptionTier);
 
+    const tier = new SubscriptionTier();
+    tier.subscriptionType = (await repoSubType.findOneBy({ tierName: "Free" }))!;
+    tier.company = (await repoCompany.findOneBy({ companyId: 2 }))!;
+    tier.activationDate = Date.now();
+    tier.isActive = true;
+
+    await repoSubTier.save(tier);
+}
+
+export async function SeedEmployee() {
+    const repoCompany = DbContext.getRepository(Company);
+    const repoEmployee = DbContext.getRepository(Employee);
+    let employee = new Employee();
+    const company = await repoCompany.findOneBy({ companyId: 1 });
+    employee.isAdmin = false;
+    employee.mail = "admin@gmail.com";
+    employee.password = "adminPass3";
+    employee.username = "notadmin";
+    employee.company = company!;
+    await repoEmployee.save(employee);
+}
+
+export async function SeedFileUpload() {
+    const repoFile = DbContext.getRepository(FileUpload);
+    const employee = await DbContext.getRepository(Employee).findOneBy({ employeeId: 2 });
+    const file = new FileUpload();
+    file.extension = ".docx";
+    file.uploadDate = Date.now();
+    file.visibleForAll = false;
+    file.author = employee!;
+    await repoFile.save(file);
 }

@@ -5,27 +5,25 @@ import { SubscriptionType } from "./subscriptionType";
 @Entity()
 export class SubscriptionTier {
     @PrimaryGeneratedColumn()
-    tierId: number;
+    tierId!: number;
 
-    @Column()
-    computedPrice: number;
+    @Column({ default: 0 })
+    computedPrice!: number;
 
     @Column('decimal', { precision: 18 })
-    activationDate: number;
+    activationDate!: number;
 
-    @OneToOne(() => Company, comp => comp.companyId)
-    @JoinColumn()
-    company: Company | null;
+    @Column('decimal', { precision: 18, default: 0 })
+    deactivationDate!: number;
 
-    @ManyToOne(() => SubscriptionType, type => type.tiers)
-    @JoinColumn()
-    subscriptionType: SubscriptionType | null;
+    @Column({ default: false })
+    isActive!: boolean;
 
-    constructor() {
-        this.tierId = 0;
-        this.activationDate = 0;
-        this.computedPrice = 0;
-        this.company = null;
-        this.subscriptionType = null;
-    }
+    @ManyToOne(() => Company, comp => comp.subscriptions, { nullable: true, eager: false })
+    @JoinColumn({ name: "companyId" })
+    company!: Company;
+
+    @ManyToOne(() => SubscriptionType, type => type.tiers, { eager: false })
+    @JoinColumn({ name: "subTypeId" })
+    subscriptionType!: SubscriptionType;
 }

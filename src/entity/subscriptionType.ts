@@ -4,45 +4,32 @@ import { SubscriptionTier } from "./subscriptionTier";
 @Entity()
 export class SubscriptionType {
     @PrimaryGeneratedColumn()
-    subscriptionTypeId: number;
+    subscriptionTypeId!: number;
 
     @Column()
-    tier: number;
+    tier!: number;
 
     @Column()
-    tierName: string;
+    tierName!: string;
 
     @Column()
-    fileUpperBound: number;
+    fileUpperBound!: number;
 
     @Column()
-    fileLowerBound: number;
+    fileLowerBound!: number;
 
     @Column()
-    employeeUpperBound: number;
+    employeeUpperBound!: number;
 
     @Column()
-    employeeLowerBound: number;
+    employeeLowerBound!: number;
 
     @Column()
-    fixedPrice: number;
+    fixedPrice!: number;
 
     @Column('decimal', { precision: 3, scale: 2 })
-    priceIncrement: number;
+    priceIncrement!: number;
 
-    @OneToMany(() => SubscriptionTier, tier => tier.subscriptionType)
-    tiers: SubscriptionTier[] | null;
-
-    constructor() {
-        this.subscriptionTypeId = 0;
-        this.tier = 0;
-        this.tierName = '';
-        this.fileUpperBound = 0;
-        this.fileLowerBound = 0;
-        this.employeeUpperBound = 0;
-        this.employeeLowerBound = 0;
-        this.fixedPrice = 0;
-        this.priceIncrement = 0;
-        this.tiers = null;
-    }
+    @OneToMany(() => SubscriptionTier, tier => tier.subscriptionType, { eager: false })
+    tiers!: SubscriptionTier[];
 }

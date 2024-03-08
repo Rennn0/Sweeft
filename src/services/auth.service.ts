@@ -60,10 +60,13 @@ export class AuthService extends Email {
                 .createQueryBuilder()
                 .update(Company)
                 .set({ isActivated: true })
-                .where("companyId=:id AND isActivated=false", { id: companyId })
+                .where("companyId=:id AND isActivated=0", { id: companyId })
                 .execute()
                 .then(result => resolve(Number(result.affected) > 0))
-                .catch(err => resolve(false));
+                .catch(err => {
+                    console.error(err);
+                    return resolve(false)
+                });
         })
     }
 

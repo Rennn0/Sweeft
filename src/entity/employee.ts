@@ -5,33 +5,24 @@ import { FileUpload } from "./fileUploads";
 @Entity()
 export class Employee {
     @PrimaryGeneratedColumn()
-    employeeId: number;
+    employeeId!: number;
 
     @Column()
-    isAdmin: boolean;
+    isAdmin!: boolean;
 
     @Column()
-    username: string;
+    username!: string;
 
     @Column()
-    password: string;
+    password!: string;
 
     @Column()
-    mail: string;
+    mail!: string;
 
-    @ManyToOne(() => Company, company => company.employees)
-    company: Company | null;
+    @ManyToOne(() => Company, company => company.employees, { eager: false })
+    @JoinColumn({ name: "companyId" })
+    company!: Company;
 
-    @OneToMany(() => FileUpload, file => file.author)
-    files: FileUpload[] | null
-
-    constructor() {
-        this.employeeId = 0;
-        this.isAdmin = false;
-        this.username = '';
-        this.password = '';
-        this.mail = '';
-        this.company = null;
-        this.files = null;
-    }
+    @OneToMany(() => FileUpload, file => file.author, { eager: false })
+    files!: FileUpload[]
 }

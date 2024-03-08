@@ -1,28 +1,21 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Employee } from "./employee";
 
 @Entity()
 export class FileUpload {
     @PrimaryGeneratedColumn()
-    fileId: number;
+    fileId!: number;
 
     @Column()
-    extension: string;
+    extension!: string;
+
+    @Column('decimal', { precision: 18 })
+    uploadDate!: number;
 
     @Column()
-    uploadDate: number;
+    visibleForAll!: boolean;
 
-    @Column()
-    visibility: boolean;
-
-    @ManyToOne(() => Employee, emp => emp.files)
-    author: Employee | null;
-
-    constructor() {
-        this.fileId = 0;
-        this.extension = '';
-        this.uploadDate = 0;
-        this.visibility = false;
-        this.author = null;
-    }
+    @ManyToOne(() => Employee, emp => emp.files, { eager: false })
+    @JoinColumn({ name: "employeeId" })
+    author!: Employee;
 }

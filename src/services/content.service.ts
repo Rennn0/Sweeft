@@ -1,3 +1,4 @@
+import { Repository } from "typeorm";
 import { DbContext } from "..";
 import { Company } from "../entity/company";
 import { SubscriptionTier } from "../entity/subscriptionTier";
@@ -10,38 +11,62 @@ export class ContentService extends AuthService {
     }
 
     public async ChangePassword(companyId: number, newPass: string): Promise<void> {
-        return new Promise<void>(async () => {
+        return new Promise<void>(async (resolve) => {
             const hashedPassword = await this.GetHashedPassword(newPass);
             await DbContext.createQueryBuilder()
                 .update(Company)
                 .set({ password: hashedPassword })
                 .where("companyId=:id", { id: companyId })
                 .execute();
+            console.log("CHANGED PASSWORD");
+            resolve()
         })
     }
 
     public static async ChangeSubscription(companyId: number, plan: string): Promise<void> {
-        return new Promise<void>(async () => {
-            const subTypeRepo = DbContext.getRepository(SubscriptionType);
-            const companyRepo = DbContext.getRepository(Company);
-            const subTierRepo = DbContext.getRepository(SubscriptionTier);
+        return new Promise<void>(async (resolve) => {
+            const repoCompany = DbContext.getRepository(Company);
+            const repoSubTier = DbContext.getRepository(SubscriptionTier);
+            const repoSubType = DbContext.getRepository(SubscriptionType);
 
-            const subType = await subTypeRepo.findOne({ where: { tierName: plan } });
-            const company = await companyRepo.findOne({ where: { companyId: companyId } });
+            const company = (await repoCompany.findOneBy({ companyId: companyId }))!;
 
-            if (!company)
-                return;
+            await ContentService.DeactivateOldSubscription(repoSubTier, company).catch(error => console.error(error));
+            await ContentService.ActivateNewSubscription(repoSubTier, repoSubType, company, plan).catch(error => console.error(error));
+            resolve();
+        })
+    }
 
-            let newSub = new SubscriptionTier();
-            newSub.activationDate = Date.now();
-            newSub.computedPrice = 0;
-            newSub.subscriptionType = subType;
-            newSub.company = company;
+    private static async DeactivateOldSubscription(repoSubTier: Repository<SubscriptionTier>, company: Company): Promise<void> {
+        return new Promise<void>(async (resolve) => {
+            await repoSubTier.findOneBy({ company: company, isActive: true })
+                .then(async (unit) => {
+                    if (unit) {
+                        unit.isActive = false;
+                        unit.deactivationDate = Date.now();
+                        /**
+                         *  HERE MAY BE PRICE COMPUTAION LOGIC, BUT LATER
+                         */
+                        await repoSubTier.save(unit);
+                    }
+                })
+                .finally(() => resolve());
+        })
+    }
 
-            await subTierRepo.save(newSub);
+    private static async ActivateNewSubscription(repoSubTier: Repository<SubscriptionTier>, repoSubType: Repository<SubscriptionType>, company: Company, newPlan: string): Promise<void> {
+        return new Promise<void>(async (resolve) => {
+            const sub = new SubscriptionTier();
+            sub.activationDate = Date.now();
+            sub.company = company;
+            sub.isActive = true;
 
-            company.subscription = newSub;
-            await companyRepo.save(company);
+            const type = await repoSubType.findOneBy({ tierName: newPlan }).catch(error => console.error(error));
+            if (type instanceof SubscriptionType) {
+                sub.subscriptionType = type
+                await repoSubTier.save(sub);
+            }
+            resolve();
         })
     }
 }

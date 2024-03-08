@@ -1,3 +1,11 @@
+                        ############################################
+                        #----------------API Docs------------------#
+                        #                                          #
+                        #  Begin  _ Mar 5, 2024                    #
+                        #  Finish _                                #
+                        #  Author _ Luka Danelia                   #
+                        ############################################
+
 
 # This must be first request to create company in db
 # Then user gets activation email
@@ -16,15 +24,18 @@ Content-Type: application/json
     "password":"SOMEPASS",
     "industry":"IT"
 }
-###
+########################################################################################
+########################################################################################
 
-# User will receive activation email and this kind of link
+
+# User will receive activation email
 # After proceeding to url company gets activated
 # works only once
 # @param _ companyId
 GET http://localhost:3000/api/auth/activate/?id=<param>
 Content-Type: application/json
-###
+########################################################################################
+########################################################################################
 
 # GET TOKEN
 # USE THAT TOKEN IN EVERY OTHER REQUEST
@@ -34,25 +45,31 @@ Content-Type: application/json
 
 {
     "email":"luka.danelia268@eab.tsu.edu.ge",
-    "password":"newpass"
+    "password":"NEWPASS"
 }
-###
-@token="GKtlK/o4PUj5AJF8q/TTsCdcvh5JXS/yIcBwuXBK2YXlG5xWIvga2977jlalNYa4C8Qb/ykRDVZzftRSsOCFbhmQc0FlPBLZabzk6OAkAdHCbfN5kdQJAFGwPTDcFrrL78vYyA3Wc1h6XDumvs0L+nS0PPwV5FMKDfD6u7pKoSobixojZnX2lZENwF2euWrpa0wrRj9h/Wwi5HRUHnRhxt8BpK7vQdhFFsXVyNAqoIsck3qd31GuZo2lWsiLSDjWlvcy5XIFf/GKIb9KYw4nVTcHKT/P5l2vaccjwLtPqD54+AEhZIfG0SFPinunRJEjHnL+4U+d+1muccNIgmESvg=="
+########################################################################################
+########################################################################################
+@token="ZHVL35aoxHNUje0A1PntydGIeTpvS09TZsQZV++Qx9dsxtZodmkkxRfVFSuRkXD8PlJLON2xUeCyDq7rN1T4EUNBY6UErC3nTovduQb2DTgVm5rO52UvwX87hb+bV/qZwZb4WsWtY6+GHaBr2Fy/TjI4Cr8aXF/miOwnMgZJWEP20WE5/xxv6kI9xki7F+RRWXUXmRlgpJfupk6RIuivf8FT810DRDl0ev61tOrk7NF5gD2nTxhGlr0jv8+FG5YN3y5eyPATwkFPAFSY7vQby5VIs7TD9j0Cx0/UY3dpifGUTDw/PP3trDC01+4qsAFkPfh/jeo0DjeX7wFxjzFEfw=="
 
 
+# Simply changes password
 PUT http://localhost:3000/api/content/change/password
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "newPassword":"newpass"
+    "newPassword":"NEWPASS"
 }
-###
+########################################################################################
+########################################################################################
 
-PUT http://localhost:3000/api/content/change/subscription
+# plan must be either [Free,Basic,Premium]
+POST http://localhost:3000/api/content/change/subscription
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "plan":"Free"
+    "plan":"Premium" 
 }
+########################################################################################
+########################################################################################
