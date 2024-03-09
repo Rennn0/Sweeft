@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCode } from "../responses/status.code";
-import jwt from "jsonwebtoken"
+import * as jwt from "jsonwebtoken"
 import { Messages } from "../responses/response.messages";
 import { AuthService } from "../services/auth.service";
 import { ITokenData } from "../interfaces/ITokenData";
+import { DecodedToken } from "..";
 
 export async function _authenticateToken(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers["authorization"];
@@ -19,9 +20,9 @@ export async function _authenticateToken(req: Request, res: Response, next: Next
         return res.status(StatusCode.BadToken).json({ error: Messages.BadToken });
     }
 
-    jwt.verify(token, String(process.env.ACCESS_TOKEN), (err, jwt) => {
+    jwt.verify(token, String(process.env.ACCESS_TOKEN), (err, access) => {
         if (err) return res.status(StatusCode.BadToken).json({ error: Messages.BadToken });
-        req.data = jwt as ITokenData;
+        req.data = access as DecodedToken;
         next();
     })
 }

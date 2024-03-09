@@ -12,6 +12,7 @@ import morgan from "morgan";
 import { contentRouter } from "./router/content.router";
 import { ITokenData } from "./interfaces/ITokenData";
 import { SeedComapny, SeedEmployee, SeedFileUpload, SeedSubTier, SeedSubType } from "./dbSeeder";
+import { IUserTokenData } from "./interfaces/IUserTokenData";
 dotenv.config();
 
 const port = process.env.PORT;
@@ -36,10 +37,11 @@ export const DbContext = new DataSource({
     options: { encrypt: false } // false if self signed cert from db
 })
 
+export type DecodedToken = ITokenData & IUserTokenData;
 declare global {
     namespace Express {
         interface Request {
-            data: ITokenData
+            data: DecodedToken,
         }
     }
 }

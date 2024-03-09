@@ -67,3 +67,16 @@ contentRouter.post(
             .catch((err) => res.status(StatusCode.Conflict).json(err));
     }
 )
+
+
+contentRouter.get(
+    "/employee-list",
+    async (req: Request, res: Response) => {
+        if (req.data?.isAdmin) {
+            const result = await ContentService.EmployeeList();
+            return res.status(StatusCode.Ok).json(result);
+        } else {
+            return res.status(StatusCode.BadRequest).json({ message: Messages.AdminInfo })
+        }
+    }
+)

@@ -10,7 +10,7 @@ export class Employee {
     @Column()
     isAdmin!: boolean;
 
-    @Column()
+    @Column({ unique: true })
     username!: string;
 
     @Column({ default: '' })

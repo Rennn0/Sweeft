@@ -11,6 +11,7 @@ import * as forge from "node-forge"
 import { Messages } from "../responses/response.messages";
 import { ILoginRequest } from "../interfaces/ILoginRequest";
 import { Employee } from "../entity/employee";
+import { IUserLogin } from "../interfaces/IUserLogin";
 
 /**
  * I decided to use secret token generation thats lifecicle = server
@@ -88,6 +89,20 @@ export class AuthService extends Email {
         })
     }
 
+    public async ActivateEmployee(employeeId: number, password: string): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            password = await this.GetHashedPassword(password);
+            await DbContext.getRepository(Employee)
+                .createQueryBuilder()
+                .update(Employee)
+                .set({ isActivated: true, password: password })
+                .where(`employeeId=${employeeId} AND isActivated=0`)
+                .execute()
+                .then(() => resolve())
+                .catch((error) => reject(error));
+        })
+    }
+
     public static async Encrypt(token: string): Promise<string> {
         return new Promise<string>(async resolve => {
             const publicKey = keyPair.publicKey;
@@ -136,6 +151,27 @@ export class AuthService extends Email {
                 return resolve(null);
 
             return resolve(byEmail!.companyId);
+        })
+    }
+
+    public static async UserExists(user: IUserLogin): Promise<Employee | null> {
+        return new Promise<Employee | null>(async (resolve, reject) => {
+            const byUsername = await DbContext.getRepository(Employee)
+                .createQueryBuilder()
+                .where(`username=:username`, { username: user.username })
+                .getOneOrFail()
+                .catch(error => reject(error));
+
+            if (byUsername instanceof Employee) {
+                const byPassword = await AuthService.ValidatePassword(user.password, byUsername.password);
+                if (byPassword) {
+                    return resolve(byUsername);
+                } {
+                    return reject(null);
+                }
+            } else {
+                return reject(null);
+            }
         })
     }
 

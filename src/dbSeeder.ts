@@ -74,7 +74,7 @@ export async function SeedEmployee() {
     let employee = new Employee();
     const company = await repoCompany.findOneBy({ companyId: 1 });
     employee.isAdmin = false;
-    employee.mail = "admin@gmail.com";
+    employee.email = "admin@gmail.com";
     employee.password = "adminPass3";
     employee.username = "notadmin";
     employee.company = company!;

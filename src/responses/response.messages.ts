@@ -10,5 +10,7 @@ export const enum Messages {
     ActivationEmail = "Activation email sent",
     ActivationEmailError = "Error sending activation email",
     Updated = "Record has been updated",
-    BadRequest = "Something wrong this request params"
+    BadRequest = "Something wrong this request params",
+    AdminInfo = "Only admin can access this information",
+    CompanyAccess = "Only company has access to this information"
 }

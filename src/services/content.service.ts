@@ -8,6 +8,7 @@ import { IChangeCompanyRequest } from "../interfaces/IChangeCompanyRequest";
 import { IEmployeeRequest } from "../interfaces/IEmployeeRequest";
 import { Employee } from "../entity/employee";
 import { Messages } from "../responses/response.messages";
+import { IEmployeeList } from "../interfaces/IEmployeeList";
 
 export class ContentService extends AuthService {
     constructor() {
@@ -88,6 +89,17 @@ export class ContentService extends AuthService {
             else {
                 reject(Messages.NotFound);
             }
+        })
+    }
+
+    public static async EmployeeList(): Promise<IEmployeeList[]> {
+        return new Promise<IEmployeeList[]>(async resolve => {
+            const list = await DbContext.getRepository(Employee).find();
+            const mappedList: IEmployeeList[] = list.map(emp => {
+                const { username, email, isActivated, isAdmin, employeeId } = emp;
+                return { username, email, isActivated, isAdmin, employeeId };
+            })
+            resolve(mappedList);
         })
     }
 

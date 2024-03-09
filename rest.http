@@ -38,14 +38,12 @@ Content-Type: application/json
 ########################################################################################
 
 # activates employee account
-#************************************************#*********   UNDONE  *********#************************************************
-#************************************************#*********   UNDONE  *********#************************************************
-GET http://localhost:3000/api/auth/activate/?id=<employeeId>&password=<password>
+GET http://localhost:3000/api/auth/activate-employee/?employeeId=6&password=pass
 Content-Type: application/json
 ########################################################################################
 ########################################################################################
 
-# GET TOKEN
+# GET COMPANY TOKEN
 # USE THAT TOKEN IN EVERY OTHER REQUEST
 # TOKEN LIFECYCLE IS SERVER
 POST http://localhost:3000/api/auth/login
@@ -58,20 +56,21 @@ Content-Type: application/json
 ########################################################################################
 ########################################################################################
 
-#************************************************#*********   UNDONE  *********************#************************************************
-#************************************************#*********   UNDONE  *********************#************************************************
+# GET EMPLOYEE TOKEN
+# USE THAT TOKEN IN EVERY OTHER REQUEST
+# TOKEN LIFECYCLE IS SERVER
 POST http://localhost:3000/api/auth/login-employee
 Content-Type: application/json
 
 {
-    "username":"",
-    "password":""
+    "username":"lukito",
+    "password":"pass"
 }
 
 ########################################################################################
 ########################################################################################
 
-@token="UPoHhZl/N0e7h3+gRxwz/3mGvYzAlUqcDZb0WzjNTYjnMRkhkUmJFMOmQU6RO0GqfHLfT4B/MfLaLDhi9Q4JljWdJlLCpWdvfmQh/eVTmcCj06J7mL0aOyYJ2rbKQulBVErXXZAyTGhU+6IBet3aA5Ml0pXk9YktY1F5XgmXEG3IzDLIDgsFsJ0vcf7cfbkDG/7EysXSYg2KIws/lQL5XCIr8A1ZrqFJiVIYZG+SSNVkdScFaHH8awEbu826+HyIA+qMPNlOk79qZ2TLS+WXAPkZ2+KFh0pPRc8HztqJfHoV3Af+km8fw52Zh/8BEjFtfvlq2swrG/vwfWa/OKafwQ=="
+@token= "SEV2uXX/XB7Nk1SQa2BcYaTOi+jRDs93mfTmf+a/lvfmxQRXCHt6TfnqhEqtsr3uMhb9JReOLDdWf+w3dhdP0I+hAfGYXlrOc17vUDSZgDmusYddVj9jJTiSl0ECDbQrow1YBDO5zOFfGbeUeOs3p+zltYCb8JMWEqKTcyWT+xQEjPZ6T2jBJj5W+or67cnewsAoRgeeyaKiBtQb4jGTSUn8ZgoiXgiITuPDREtMuRLY2IW7uh4j5kiLttEVyG33tjiMzYPwKyT3svMOP8iLg4jXtH/9pAWBJA026llMQlwNQJ4K+LBqVSDoQQ+HFpz0/CWP9ZNe/05qjbBwru4hQg=="
 
 
 # Simply changes password
@@ -102,7 +101,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "companyName":"vau",
+    "companyName":"HELLO",
     "email":"luka.danelia268@eab.tsu.edu.ge",
     "country":"georgia",
     "industry":"it"
@@ -121,5 +120,14 @@ Authorization: Bearer {{token}}
     "email":"luka.danelia@ugt.ge",
     "isAdmin":"false"
 }
+########################################################################################
+########################################################################################
+
+# Exposes information for admin as @IEmployeeList[]
+# Requires login as user, not compnay
+GET http://localhost:3000/api/content/employee-list
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
 ########################################################################################
 ########################################################################################
