@@ -10,6 +10,7 @@ import { DbContext } from "..";
 import * as forge from "node-forge"
 import { Messages } from "../responses/response.messages";
 import { ILoginRequest } from "../interfaces/ILoginRequest";
+import { Employee } from "../entity/employee";
 
 /**
  * I decided to use secret token generation thats lifecicle = server
@@ -31,11 +32,11 @@ export class AuthService extends Email {
     public SendActivationEmail(company: CompanyRequest): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             if (!AuthService.ValidateEmail(company.email))
-                reject(Messages.InvalidEmail);
+                return reject(Messages.InvalidEmail);
 
             fs.readFile("src\\templates\\activation.email.html", "utf8", async (err, template) => {
                 if (err)
-                    reject(`${Messages.FileOpenError} _ ${err}`);
+                    return reject(`${Messages.FileOpenError} _ ${err}`);
 
                 const compiledTemplate = HandleBars.compile(template);
                 const companyId = await this.RegisterNewCompany(company);
@@ -46,6 +47,23 @@ export class AuthService extends Email {
                     .catch(err => reject(`${Messages.ActivationEmailError} _ ${err}`))
             })
         });
+    }
+
+    protected SendEmployeeActivationEmail(employee: Employee, companyName: string, companyEmail: string): Promise<string> {
+        return new Promise<string>(async (resolve, reject) => {
+            fs.readFile("src\\templates\\employeeActivation.email.html", "utf-8", async (err, template) => {
+                if (err)
+                    return reject(`${Messages.FileOpenError} _ ${err}`);
+
+                const compiledTemplate = HandleBars.compile(template);
+                const { username, employeeId, email } = employee;
+
+                const html = compiledTemplate({ username, employeeId, companyEmail, companyName });
+                this.SendEmail([email], "Accound activation", html)
+                    .then(ok => resolve(Messages.ActivationEmail))
+                    .catch(err => reject(`${Messages.ActivationEmailError} _ ${err}`))
+            })
+        })
     }
 
     /**
@@ -154,6 +172,7 @@ export class AuthService extends Email {
             return resolve(hashedPassword);
         })
     }
+
     /**
      * 
      * @param data password

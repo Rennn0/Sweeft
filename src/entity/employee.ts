@@ -13,11 +13,14 @@ export class Employee {
     @Column()
     username!: string;
 
-    @Column()
+    @Column({ default: '' })
     password!: string;
 
-    @Column()
-    mail!: string;
+    @Column({ default: '' })
+    email!: string;
+
+    @Column({ default: false })
+    isActivated!: boolean;
 
     @ManyToOne(() => Company, company => company.employees, { eager: false })
     @JoinColumn({ name: "companyId" })

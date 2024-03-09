@@ -8,7 +8,7 @@
 
 
 # This must be first request to create company in db
-# Then user gets activation email
+# Then it receivs activation email
 # @body _ ICompanyRequest
 
 # p.s. 
@@ -37,6 +37,14 @@ Content-Type: application/json
 ########################################################################################
 ########################################################################################
 
+# activates employee account
+#************************************************#*********   UNDONE  *********#************************************************
+#************************************************#*********   UNDONE  *********#************************************************
+GET http://localhost:3000/api/auth/activate/?id=<employeeId>&password=<password>
+Content-Type: application/json
+########################################################################################
+########################################################################################
+
 # GET TOKEN
 # USE THAT TOKEN IN EVERY OTHER REQUEST
 # TOKEN LIFECYCLE IS SERVER
@@ -49,7 +57,21 @@ Content-Type: application/json
 }
 ########################################################################################
 ########################################################################################
-@token="ZHVL35aoxHNUje0A1PntydGIeTpvS09TZsQZV++Qx9dsxtZodmkkxRfVFSuRkXD8PlJLON2xUeCyDq7rN1T4EUNBY6UErC3nTovduQb2DTgVm5rO52UvwX87hb+bV/qZwZb4WsWtY6+GHaBr2Fy/TjI4Cr8aXF/miOwnMgZJWEP20WE5/xxv6kI9xki7F+RRWXUXmRlgpJfupk6RIuivf8FT810DRDl0ev61tOrk7NF5gD2nTxhGlr0jv8+FG5YN3y5eyPATwkFPAFSY7vQby5VIs7TD9j0Cx0/UY3dpifGUTDw/PP3trDC01+4qsAFkPfh/jeo0DjeX7wFxjzFEfw=="
+
+#************************************************#*********   UNDONE  *********************#************************************************
+#************************************************#*********   UNDONE  *********************#************************************************
+POST http://localhost:3000/api/auth/login-employee
+Content-Type: application/json
+
+{
+    "username":"",
+    "password":""
+}
+
+########################################################################################
+########################################################################################
+
+@token="UPoHhZl/N0e7h3+gRxwz/3mGvYzAlUqcDZb0WzjNTYjnMRkhkUmJFMOmQU6RO0GqfHLfT4B/MfLaLDhi9Q4JljWdJlLCpWdvfmQh/eVTmcCj06J7mL0aOyYJ2rbKQulBVErXXZAyTGhU+6IBet3aA5Ml0pXk9YktY1F5XgmXEG3IzDLIDgsFsJ0vcf7cfbkDG/7EysXSYg2KIws/lQL5XCIr8A1ZrqFJiVIYZG+SSNVkdScFaHH8awEbu826+HyIA+qMPNlOk79qZ2TLS+WXAPkZ2+KFh0pPRc8HztqJfHoV3Af+km8fw52Zh/8BEjFtfvlq2swrG/vwfWa/OKafwQ=="
 
 
 # Simply changes password
@@ -70,6 +92,34 @@ Authorization: Bearer {{token}}
 
 {
     "plan":"Premium" 
+}
+########################################################################################
+########################################################################################
+
+# change company's personal informaion
+POST http://localhost:3000/api/content/change/copmany-information
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "companyName":"vau",
+    "email":"luka.danelia268@eab.tsu.edu.ge",
+    "country":"georgia",
+    "industry":"it"
+}
+########################################################################################
+########################################################################################
+
+# adds new employee in db
+# sends activation email 
+POST http://localhost:3000/api/content/add/employee
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "username":"lukito",
+    "email":"luka.danelia@ugt.ge",
+    "isAdmin":"false"
 }
 ########################################################################################
 ########################################################################################

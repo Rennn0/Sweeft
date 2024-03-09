@@ -7,6 +7,8 @@ import { StatusCode } from "../responses/status.code";
 import { Messages } from "../responses/response.messages";
 import { SubChangeRequest } from "../models/SubsChangeRequest";
 import { Subscriptions } from "../models/Subscriptions";
+import { ChangeCompanyRequest } from "../models/ChangeCompanyRequest";
+import { EmployeeRequest } from "../models/EmployeeRequest";
 
 export const contentRouter = express.Router();
 contentRouter.use(_authenticateToken);
@@ -40,5 +42,28 @@ contentRouter.post(
         catch (error) {
             return res.status(StatusCode.Conflict).json(error);
         }
+    }
+)
+
+contentRouter.post(
+    "/change/copmany-information",
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new ChangeCompanyRequest()),
+    async (req: Request, res: Response) => {
+        await ContentService.UpdateCompanyRecord(req.body, req.data.companyId)
+            .then(() => res.status(StatusCode.Updated).json({ message: Messages.Updated }))
+            .catch(err => res.status(StatusCode.Conflict).json(err));
+    }
+)
+
+contentRouter.post(
+    "/add/employee",
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new EmployeeRequest()),
+    async (req: Request, res: Response) => {
+        const contentService = new ContentService();
+        await contentService.AddNewEmployee(req.body, req.data.companyId)
+            .then((msg) => res.status(StatusCode.Ok).json(msg))
+            .catch((err) => res.status(StatusCode.Conflict).json(err));
     }
 )
