@@ -22,10 +22,10 @@ export class Employee {
     @Column({ default: false })
     isActivated!: boolean;
 
-    @ManyToOne(() => Company, company => company.employees, { eager: false })
+    @ManyToOne(() => Company, company => company.employees)
     @JoinColumn({ name: "companyId" })
     company!: Company;
 
-    @OneToMany(() => FileUpload, file => file.author, { eager: false })
+    @OneToMany(() => FileUpload, file => file.author, { onUpdate: "CASCADE", onDelete: "SET NULL" })
     files!: FileUpload[]
 }

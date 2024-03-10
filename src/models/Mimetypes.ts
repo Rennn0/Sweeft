@@ -1,0 +1,1 @@
+export const Mimetypes: string[] = ["text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];

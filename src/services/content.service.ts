@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { DeleteResult, In, Repository } from "typeorm";
 import { DbContext } from "..";
 import { Company } from "../entity/company";
 import { SubscriptionTier } from "../entity/subscriptionTier";
@@ -9,6 +9,7 @@ import { IEmployeeRequest } from "../interfaces/IEmployeeRequest";
 import { Employee } from "../entity/employee";
 import { Messages } from "../responses/response.messages";
 import { IEmployeeList } from "../interfaces/IEmployeeList";
+import { FileUpload } from "../entity/fileUploads";
 
 export class ContentService extends AuthService {
     constructor() {
@@ -92,14 +93,63 @@ export class ContentService extends AuthService {
         })
     }
 
-    public static async EmployeeList(): Promise<IEmployeeList[]> {
+    public static async EmployeeList(employeeId: number): Promise<IEmployeeList[]> {
         return new Promise<IEmployeeList[]>(async resolve => {
-            const list = await DbContext.getRepository(Employee).find();
+            const repoEmp = DbContext.getRepository(Employee);
+            const company = await repoEmp.findOneBy({ employeeId: employeeId }).then((data) => data?.company)
+            const list = await repoEmp.find({ where: { company: company } });
             const mappedList: IEmployeeList[] = list.map(emp => {
                 const { username, email, isActivated, isAdmin, employeeId } = emp;
                 return { username, email, isActivated, isAdmin, employeeId };
             })
             resolve(mappedList);
+        })
+    }
+
+    public static async DeleteEmployee(employeeId: number): Promise<DeleteResult> {
+        return new Promise<DeleteResult>(async (resolve, reject) => {
+            try {
+                const repoFfile = DbContext.getRepository(FileUpload);
+                const files = await repoFfile.find({ where: { author: { employeeId: employeeId } } });
+                if (files.length > 0) {
+                    for (const file of files) {
+                        file.author = null;
+                        await repoFfile.save(file);
+                    }
+                }
+                const deleteResult: DeleteResult = await DbContext.getRepository(Employee)
+                    .delete({ employeeId: employeeId });
+                resolve(deleteResult);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    public static async UploadFile(authorId: number, file: Express.Multer.File, forAll: boolean, employeeIds: number[]): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            try {
+                const fileUplad = new FileUpload();
+                fileUplad.author = await DbContext.getRepository(Employee).findOneBy({ employeeId: authorId });
+                fileUplad.extension = file.mimetype;
+                fileUplad.fileName = file.originalname!;
+                fileUplad.filePath = file.path;
+                fileUplad.uploadDate = Date.now();
+                fileUplad.size = file.size!;
+
+                if (forAll) {
+                    fileUplad.visibleForAll = true;
+                } else {
+                    fileUplad.visibleForAll = false;
+                    const employees = await DbContext.getRepository(Employee).find({ where: { employeeId: In(employeeIds) } });
+
+                    fileUplad.visibleFor = employees;
+                }
+                await DbContext.getRepository(FileUpload).save(fileUplad);
+                return resolve();
+            } catch (error) {
+                reject(error)
+            }
         })
     }
 

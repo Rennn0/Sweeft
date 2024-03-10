@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm"
 import { SubscriptionTier } from "./subscriptionTier";
 import { Employee } from "./employee";
 
@@ -25,9 +25,9 @@ export class Company {
     @Column({ default: false })
     isActivated!: boolean;
 
-    @OneToMany(() => SubscriptionTier, sub => sub.company, { eager: false })
+    @OneToMany(() => SubscriptionTier, sub => sub.company, { onUpdate: "CASCADE", onDelete: "SET NULL" })
     subscriptions!: SubscriptionTier[];
 
-    @OneToMany(() => Employee, employee => employee.company, { eager: false })
+    @OneToMany(() => Employee, employee => employee.company, { onUpdate: "CASCADE", onDelete: "SET NULL" })
     employees!: Employee[];
 }

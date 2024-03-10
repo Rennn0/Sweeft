@@ -131,3 +131,21 @@ Authorization: Bearer {{token}}
 
 ########################################################################################
 ########################################################################################
+
+# Removes empployee from list
+DELETE http://localhost:3000/api/content/delete/employee/?employeeId=<>
+Content-Type: application/json
+Authorization: Bearer {{token}}
+########################################################################################
+########################################################################################
+
+# upload new document in file system
+#
+POST http://localhost:3000/api/content/upload/file/?all=false&employees=[9,7]
+Content-Type: multipart/form-data
+Authorization: Bearer {{token}}
+
+file
+
+########################################################################################
+########################################################################################

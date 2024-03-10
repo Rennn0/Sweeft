@@ -19,11 +19,11 @@ export class SubscriptionTier {
     @Column({ default: false })
     isActive!: boolean;
 
-    @ManyToOne(() => Company, comp => comp.subscriptions, { nullable: true, eager: false })
+    @ManyToOne(() => Company, comp => comp.subscriptions, { nullable: true })
     @JoinColumn({ name: "companyId" })
     company!: Company;
 
-    @ManyToOne(() => SubscriptionType, type => type.tiers, { eager: false })
+    @ManyToOne(() => SubscriptionType, type => type.tiers)
     @JoinColumn({ name: "subTypeId" })
     subscriptionType!: SubscriptionType;
 }

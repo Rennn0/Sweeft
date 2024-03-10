@@ -30,6 +30,6 @@ export class SubscriptionType {
     @Column('decimal', { precision: 3, scale: 2 })
     priceIncrement!: number;
 
-    @OneToMany(() => SubscriptionTier, tier => tier.subscriptionType, { eager: false })
+    @OneToMany(() => SubscriptionTier, tier => tier.subscriptionType, { onUpdate: "CASCADE", onDelete: "SET NULL" })
     tiers!: SubscriptionTier[];
 }

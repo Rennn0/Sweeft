@@ -13,6 +13,7 @@ import { contentRouter } from "./router/content.router";
 import { ITokenData } from "./interfaces/ITokenData";
 import { SeedComapny, SeedEmployee, SeedFileUpload, SeedSubTier, SeedSubType } from "./dbSeeder";
 import { IUserTokenData } from "./interfaces/IUserTokenData";
+import multer from "multer";
 dotenv.config();
 
 const port = process.env.PORT;
@@ -56,10 +57,13 @@ DbContext.initialize()
     .then(() => console.log("Connected to database"))
     .catch((error) => console.error(error))
 // .then(async () => {
-//     const data = await DbContext.getRepository(Company).find({ relations: { subscriptions: true } });
-//     for (const unit of data) {
-//         console.log(unit);
-//     }
+//     const employee = await DbContext.getRepository(Employee).findOneBy({ employeeId: 8 });
+//     const file = new FileUpload();
+//     file.author = employee!;
+//     file.extension = '.docx';
+//     file.uploadDate = Date.now();
+//     file.visibleForAll = false;
+//     await DbContext.getRepository(FileUpload).save(file);
 // })
 
 

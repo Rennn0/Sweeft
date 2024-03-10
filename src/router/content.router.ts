@@ -9,14 +9,34 @@ import { SubChangeRequest } from "../models/SubsChangeRequest";
 import { Subscriptions } from "../models/Subscriptions";
 import { ChangeCompanyRequest } from "../models/ChangeCompanyRequest";
 import { EmployeeRequest } from "../models/EmployeeRequest";
+import { _companyAccess } from "../middleware/company.access";
+import { _employeeAccess } from "../middleware/employee.access";
+import { DeleteResult, In } from "typeorm";
+import { DbContext } from "..";
+import { FileUpload } from "../entity/fileUploads";
+import { Employee } from "../entity/employee";
+import multer from "multer";
+import { Mimetypes } from "../models/Mimetypes";
 
 export const contentRouter = express.Router();
 contentRouter.use(_authenticateToken);
 
+const storage = multer.diskStorage({
+    destination(req, file, callback) {
+        callback(null, "uploads/")
+    },
+    filename(req, file, callback) {
+        callback(null, file.originalname);
+    },
+})
+const upload = multer({ storage: storage });
+
 contentRouter.put(
     "/change/password",
-    (req: Request, res: Response, next: NextFunction) =>
-        _validateRequestBody(req, res, next, new PasswordChangeRequest()),
+    (req: Request, res: Response, next: NextFunction) => {
+        _validateRequestBody(req, res, next, new PasswordChangeRequest());
+        _companyAccess(req, res, next);
+    },
     async (req: Request, res: Response) => {
         const contentService = new ContentService();
         const id = req.data.companyId;
@@ -28,8 +48,10 @@ contentRouter.put(
 
 contentRouter.post(
     "/change/subscription",
-    (req: Request, res: Response, next: NextFunction) =>
-        _validateRequestBody(req, res, next, new SubChangeRequest()),
+    (req: Request, res: Response, next: NextFunction) => {
+        _validateRequestBody(req, res, next, new SubChangeRequest());
+        _companyAccess(req, res, next);
+    },
     async (req: Request, res: Response) => {
         const { plan } = req.body;
         if (!Subscriptions.includes(plan))
@@ -47,8 +69,10 @@ contentRouter.post(
 
 contentRouter.post(
     "/change/copmany-information",
-    (req: Request, res: Response, next: NextFunction) =>
-        _validateRequestBody(req, res, next, new ChangeCompanyRequest()),
+    (req: Request, res: Response, next: NextFunction) => {
+        _validateRequestBody(req, res, next, new ChangeCompanyRequest());
+        _companyAccess(req, res, next);
+    },
     async (req: Request, res: Response) => {
         await ContentService.UpdateCompanyRecord(req.body, req.data.companyId)
             .then(() => res.status(StatusCode.Updated).json({ message: Messages.Updated }))
@@ -71,12 +95,57 @@ contentRouter.post(
 
 contentRouter.get(
     "/employee-list",
+    (req: Request, res: Response, next: NextFunction) =>
+        _employeeAccess(req, res, next),
     async (req: Request, res: Response) => {
         if (req.data?.isAdmin) {
-            const result = await ContentService.EmployeeList();
+            const result = await ContentService.EmployeeList(req.data.employeeId);
             return res.status(StatusCode.Ok).json(result);
         } else {
             return res.status(StatusCode.BadRequest).json({ message: Messages.AdminInfo })
+        }
+    }
+)
+
+contentRouter.delete(
+    "/delete/employee",
+    async (req: Request, res: Response) => {
+        if (req.data.hasOwnProperty("companyId") || req.data.hasOwnProperty("isAdmin")) {
+            const employeeId = parseInt(req.query.employeeId as string);
+            try {
+                const deleteResult = await ContentService.DeleteEmployee(employeeId);
+                return res.status(StatusCode.Ok).json(deleteResult);
+            } catch (error) {
+                return res.status(StatusCode.Conflict).json(error)
+            }
+        } else {
+            return res.status(StatusCode.BadToken).json({ message: Messages.BadToken });
+        }
+    }
+)
+
+contentRouter.post(
+    "/upload/file",
+    (req: Request, res: Response, next: NextFunction) =>
+        _employeeAccess(req, res, next),
+    upload.single('file'),
+    async (req: Request, res: Response) => {
+        if (req.file && Mimetypes.includes(req.file.mimetype)) {
+            try {
+                const { all, employees } = req.query;
+                const file = req.file;
+
+                const visibleForAll = all == "true" ? true : false;
+                const employeeIds: number[] = JSON.parse(employees as string);
+
+                await ContentService.UploadFile(req.data.employeeId, file, visibleForAll, employeeIds);
+
+                return res.status(StatusCode.Ok).json({ message: Messages.Added });
+            } catch (error) {
+                return res.json(error)
+            }
+        } else {
+            return res.status(StatusCode.BadRequest).json({ message: Messages.BadRequest });
         }
     }
 )
