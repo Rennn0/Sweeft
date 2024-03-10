@@ -21,7 +21,7 @@ export class FileUpload {
     @Column({ default: '' })
     fileName!: string;
 
-    @Column("decimal", { default: 0, precision: 10 })
+    @Column("decimal", { default: 0, precision: 18 })
     size!: number;
 
     @ManyToOne(() => Employee, emp => emp.files, { nullable: true })

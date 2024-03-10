@@ -153,6 +153,48 @@ export class ContentService extends AuthService {
         })
     }
 
+    public static async ChangeVisibility(employeeId: number, fileId: number, forAll: boolean, employeeIds: number[]): Promise<any> {
+        return new Promise<any>(async (resolve, reject) => {
+            const repoFile = DbContext.getRepository(FileUpload);
+            const repoEmployee = DbContext.getRepository(Employee);
+
+            const file = await repoFile.findOneBy({ author: { employeeId: employeeId }, fileId: fileId });
+            if (!file)
+                return reject("File not found");
+
+            if (forAll) {
+                file.visibleForAll = true;
+                file.visibleFor = [];
+            }
+            else {
+                const employees = await repoEmployee.find({ where: { employeeId: In(employeeIds) } });
+                file.visibleForAll = false;
+                file.visibleFor = employees;
+            }
+
+            await repoFile.save(file);
+            return resolve("Ok");
+
+        })
+    }
+
+    public static async DeleteFile(employeeId: number, fileId: number): Promise<any> {
+        return new Promise<void>(async (resolve, reject) => {
+            const repoFile = DbContext.getRepository(FileUpload);
+
+            const file = await repoFile.findOneBy({ fileId: fileId, author: { employeeId: employeeId } });
+            if (!file)
+                return reject("File not found");
+
+            await DbContext.getRepository(FileUpload).createQueryBuilder()
+                .delete()
+                .where(file)
+                .execute();
+
+            resolve();
+        })
+    }
+
     private static async DeactivateOldSubscription(repoSubTier: Repository<SubscriptionTier>, company: Company): Promise<void> {
         return new Promise<void>(async (resolve) => {
             await repoSubTier.findOneBy({ company: company, isActive: true })

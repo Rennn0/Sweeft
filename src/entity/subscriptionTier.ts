@@ -16,6 +16,9 @@ export class SubscriptionTier {
     @Column('decimal', { precision: 18, default: 0 })
     deactivationDate!: number;
 
+    @Column('decimal', { precision: 18, default: 0 })
+    lastPaymentDate!: number;
+
     @Column({ default: false })
     isActive!: boolean;
 

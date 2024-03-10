@@ -11,10 +11,6 @@ import { ChangeCompanyRequest } from "../models/ChangeCompanyRequest";
 import { EmployeeRequest } from "../models/EmployeeRequest";
 import { _companyAccess } from "../middleware/company.access";
 import { _employeeAccess } from "../middleware/employee.access";
-import { DeleteResult, In } from "typeorm";
-import { DbContext } from "..";
-import { FileUpload } from "../entity/fileUploads";
-import { Employee } from "../entity/employee";
 import multer from "multer";
 import { Mimetypes } from "../models/Mimetypes";
 
@@ -42,7 +38,7 @@ contentRouter.put(
         const id = req.data.companyId;
         const { newPassword } = req.body;
         await contentService.ChangePassword(id, newPassword);
-        return res.send(StatusCode.Updated).json({ message: Messages.Updated });
+        return res.status(StatusCode.Updated).json({ message: Messages.Updated });
     }
 )
 
@@ -50,7 +46,7 @@ contentRouter.post(
     "/change/subscription",
     (req: Request, res: Response, next: NextFunction) => {
         _validateRequestBody(req, res, next, new SubChangeRequest());
-        _companyAccess(req, res, next);
+        _companyAccess;
     },
     async (req: Request, res: Response) => {
         const { plan } = req.body;
@@ -95,8 +91,7 @@ contentRouter.post(
 
 contentRouter.get(
     "/employee-list",
-    (req: Request, res: Response, next: NextFunction) =>
-        _employeeAccess(req, res, next),
+    _employeeAccess,
     async (req: Request, res: Response) => {
         if (req.data?.isAdmin) {
             const result = await ContentService.EmployeeList(req.data.employeeId);
@@ -126,8 +121,7 @@ contentRouter.delete(
 
 contentRouter.post(
     "/upload/file",
-    (req: Request, res: Response, next: NextFunction) =>
-        _employeeAccess(req, res, next),
+    _employeeAccess,
     upload.single('file'),
     async (req: Request, res: Response) => {
         if (req.file && Mimetypes.includes(req.file.mimetype)) {
@@ -146,6 +140,42 @@ contentRouter.post(
             }
         } else {
             return res.status(StatusCode.BadRequest).json({ message: Messages.BadRequest });
+        }
+    }
+)
+
+contentRouter.put(
+    "/change/visibility",
+    _employeeAccess,
+    async (req: Request, res: Response) => {
+        try {
+            const { all, employees, fileId } = req.query;
+
+            const visibleForAll = all == "true" ? true : false;
+            const employeeIds: number[] = JSON.parse(employees as string);
+            const fId = parseInt(fileId as string);
+
+            await ContentService.ChangeVisibility(req.data.employeeId, fId, visibleForAll, employeeIds);
+            return res.status(StatusCode.Ok).json({ message: Messages.Updated });
+        } catch (error) {
+            return res.status(StatusCode.BadRequest).json(error);
+        }
+    }
+)
+
+contentRouter.delete(
+    "/delete/file",
+    _employeeAccess,
+    async (req: Request, res: Response) => {
+        try {
+            const { fileId } = req.query;
+            const _fileId = parseInt(fileId as string);
+
+            await ContentService.DeleteFile(req.data.employeeId, _fileId);
+            return res.status(StatusCode.Ok).json({ message: Messages.Deleted });
+
+        } catch (error) {
+            return res.status(StatusCode.BadRequest).json(error);
         }
     }
 )

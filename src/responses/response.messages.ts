@@ -13,5 +13,6 @@ export const enum Messages {
     BadRequest = "Something wrong this request params",
     AdminInfo = "Only admin can access this information",
     CompanyAccess = "Only company has access to this information",
-    Added = "New record has been added"
+    Added = "New record has been added",
+    Deleted = "Record deleted successfully"
 }

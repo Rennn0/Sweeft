@@ -149,3 +149,27 @@ file
 
 ########################################################################################
 ########################################################################################
+
+# Changes visibility for certain fil
+# Accesible only for author employee
+PUT http://localhost:3000/api/content/change/visibility/?all=<true|false>&employees=<[empId]>&fileId=<fileId>
+Content-Type: application/json
+Authorization: Bearer {{token}}
+########################################################################################
+########################################################################################
+
+# Deletes file record
+# Accesible only for author employee
+DELETE http://localhost:3000/api/content/delete/file/?fileId=<fileId>
+Content-Type: application/json
+Authorization: Bearer {{token}}
+########################################################################################
+########################################################################################
+
+# Login as company
+GET http://localhost:3000/api/subscription/current-billing
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+########################################################################################
+########################################################################################
