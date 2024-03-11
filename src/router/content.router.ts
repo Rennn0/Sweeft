@@ -29,10 +29,9 @@ const upload = multer({ storage: storage });
 
 contentRouter.put(
     "/change/password",
-    (req: Request, res: Response, next: NextFunction) => {
-        _validateRequestBody(req, res, next, new PasswordChangeRequest());
-        _companyAccess(req, res, next);
-    },
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new PasswordChangeRequest()),
+    _companyAccess,
     async (req: Request, res: Response) => {
         const contentService = new ContentService();
         const id = req.data.companyId;
@@ -44,10 +43,9 @@ contentRouter.put(
 
 contentRouter.post(
     "/change/subscription",
-    (req: Request, res: Response, next: NextFunction) => {
-        _validateRequestBody(req, res, next, new SubChangeRequest());
-        _companyAccess;
-    },
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new SubChangeRequest()),
+    _companyAccess,
     async (req: Request, res: Response) => {
         const { plan } = req.body;
         if (!Subscriptions.includes(plan))
@@ -65,10 +63,9 @@ contentRouter.post(
 
 contentRouter.post(
     "/change/copmany-information",
-    (req: Request, res: Response, next: NextFunction) => {
-        _validateRequestBody(req, res, next, new ChangeCompanyRequest());
-        _companyAccess(req, res, next);
-    },
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new ChangeCompanyRequest()),
+    _companyAccess,
     async (req: Request, res: Response) => {
         await ContentService.UpdateCompanyRecord(req.body, req.data.companyId)
             .then(() => res.status(StatusCode.Updated).json({ message: Messages.Updated }))
@@ -81,6 +78,8 @@ contentRouter.post(
     (req: Request, res: Response, next: NextFunction) =>
         _validateRequestBody(req, res, next, new EmployeeRequest()),
     async (req: Request, res: Response) => {
+        if (!(req.data.hasOwnProperty("isAdmin") || req.data.hasOwnProperty("companyId")))
+            return res.status(StatusCode.BadRequest).json({ message: Messages.BadRequest });
         const contentService = new ContentService();
         await contentService.AddNewEmployee(req.body, req.data.companyId)
             .then((msg) => res.status(StatusCode.Ok).json(msg))
@@ -176,6 +175,22 @@ contentRouter.delete(
 
         } catch (error) {
             return res.status(StatusCode.BadRequest).json(error);
+        }
+    }
+)
+
+contentRouter.get(
+    "/files",
+    _employeeAccess,
+    async (req: Request, res: Response) => {
+        if (!req.data.isAdmin)
+            return res.status(StatusCode.BadRequest).json({ message: Messages.AdminInfo });
+
+        try {
+            const result = await ContentService.Files();
+            return res.status(StatusCode.Ok).json(result);
+        } catch (error) {
+            return res.status(StatusCode.BadToken).json(error);
         }
     }
 )

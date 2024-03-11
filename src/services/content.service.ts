@@ -195,6 +195,13 @@ export class ContentService extends AuthService {
         })
     }
 
+    public static async Files(): Promise<FileUpload[] | void> {
+        return new Promise<FileUpload[] | void>(async (resolve, reject) => {
+            const files = await DbContext.getRepository(FileUpload).find().catch(err => reject(err));
+            return resolve(files);
+        })
+    }
+
     private static async DeactivateOldSubscription(repoSubTier: Repository<SubscriptionTier>, company: Company): Promise<void> {
         return new Promise<void>(async (resolve) => {
             await repoSubTier.findOneBy({ company: company, isActive: true })

@@ -18,9 +18,8 @@ export const authRouter = express.Router();
 
 authRouter.post(
     "/registration",
-    (req: Request, res: Response, next: NextFunction) => {
-        _validateRequestBody(req, res, next, new CompanyRequest())
-    },
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new CompanyRequest()),
     async (req: Request, res: Response) => {
         const authService = new AuthService();
         const company: CompanyRequest = req.body;
@@ -34,28 +33,30 @@ authRouter.post(
 
 authRouter.post(
     "/login",
-    (req: Request, res: Response, next: NextFunction) => {
-        _validateRequestBody(req, res, next, new LoginRequest())
-    },
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new LoginRequest()),
     async (req: Request, res: Response) => {
-        const loginRequest: ILoginRequest = req.body;
-        const company = await AuthService.Exists(loginRequest);
+        try {
+            const loginRequest: ILoginRequest = req.body;
+            const company = await AuthService.Exists(loginRequest);
 
-        if (company == null)
-            return res.status(StatusCode.NotFound).json({ message: Messages.NotFound })
+            if (company == null)
+                return res.status(StatusCode.NotFound).json({ message: Messages.NotFound })
 
-        const data: ITokenData = { companyId: company, iat: 0 };
-        let accessToken = jwt.sign(data, String(process.env.ACCESS_TOKEN));
-        accessToken = await AuthService.Encrypt(accessToken);
-        return res.json({ accessToken })
+            const data: ITokenData = { companyId: company, iat: 0 };
+            let accessToken = jwt.sign(data, String(process.env.ACCESS_TOKEN));
+            accessToken = await AuthService.Encrypt(accessToken);
+            return res.json({ accessToken })
+        } catch (error) {
+            return res.status(StatusCode.NotFound).send({ message: Messages.NotFound });
+        }
     }
 )
 
 authRouter.post(
     "/login-employee",
-    (req: Request, res: Response, next: NextFunction) => {
-        _validateRequestBody(req, res, next, new UserLoginRequest())
-    },
+    (req: Request, res: Response, next: NextFunction) =>
+        _validateRequestBody(req, res, next, new UserLoginRequest()),
     async (req: Request, res: Response) => {
         const userLoginReq: IUserLogin = req.body;
         try {

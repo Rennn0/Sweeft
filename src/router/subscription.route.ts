@@ -10,6 +10,7 @@ subscriptionRouter.use(_authenticateToken);
 
 subscriptionRouter.get(
     "/current-billing",
+    _companyAccess,
     async (req: Request, res: Response) => {
         try {
             const price = await SubscriptionService.ComputePrice(req.data.companyId);

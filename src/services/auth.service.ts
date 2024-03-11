@@ -137,12 +137,14 @@ export class AuthService extends Email {
      * @returns companyId if exists, else null
      */
     public static async Exists(company: ILoginRequest): Promise<number | null> {
-        return new Promise<number | null>(async resolve => {
+        return new Promise<number | null>(async (resolve, reject) => {
             const byEmail = await DbContext.getRepository(Company)
-                .createQueryBuilder("company")
-                .where("company.email=:email", { email: company.email })
-                .getOne();
-            if (byEmail == null)
+                .createQueryBuilder()
+                .where("email=:email", { email: company.email })
+                .getOneOrFail()
+                .catch(error => reject(error));
+
+            if (!(byEmail instanceof Company))
                 return resolve(null);
 
             const byPassword = await AuthService.ValidatePassword(company.password, byEmail.password);
@@ -158,7 +160,7 @@ export class AuthService extends Email {
         return new Promise<Employee | null>(async (resolve, reject) => {
             const byUsername = await DbContext.getRepository(Employee)
                 .createQueryBuilder()
-                .where(`username=:username`, { username: user.username })
+                .where("username=:username", { username: user.username })
                 .getOneOrFail()
                 .catch(error => reject(error));
 

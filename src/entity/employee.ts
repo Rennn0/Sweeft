@@ -10,13 +10,13 @@ export class Employee {
     @Column()
     isAdmin!: boolean;
 
-    @Column({ unique: true })
+    @Column({ unique: true, collation: "SQL_Latin1_General_CP1_CS_AS" })
     username!: string;
 
     @Column({ default: '' })
     password!: string;
 
-    @Column({ default: '' })
+    @Column({ default: '', unique: true })
     email!: string;
 
     @Column({ default: false })

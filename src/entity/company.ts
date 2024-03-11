@@ -10,7 +10,7 @@ export class Company {
     @Column({ default: 'new' })
     companyName!: string
 
-    @Column({ unique: true })
+    @Column({ unique: true, collation: "SQL_Latin1_General_CP1_CS_AS" })
     email!: string;
 
     @Column()

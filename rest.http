@@ -18,8 +18,8 @@ POST  http://localhost:3000/api/auth/registration
 Content-Type: application/json
 
 {
-    "companyName": "Microsoft",
-    "email": "luka.danelia268@eab.tsu.edu.ge",
+    "companyName": "NVIDIA",
+    "email": "luka.danelia@ugt.ge",
     "country": "Georgia",
     "password":"SOMEPASS",
     "industry":"IT"
@@ -70,10 +70,10 @@ Content-Type: application/json
 ########################################################################################
 ########################################################################################
 
-@token= "SEV2uXX/XB7Nk1SQa2BcYaTOi+jRDs93mfTmf+a/lvfmxQRXCHt6TfnqhEqtsr3uMhb9JReOLDdWf+w3dhdP0I+hAfGYXlrOc17vUDSZgDmusYddVj9jJTiSl0ECDbQrow1YBDO5zOFfGbeUeOs3p+zltYCb8JMWEqKTcyWT+xQEjPZ6T2jBJj5W+or67cnewsAoRgeeyaKiBtQb4jGTSUn8ZgoiXgiITuPDREtMuRLY2IW7uh4j5kiLttEVyG33tjiMzYPwKyT3svMOP8iLg4jXtH/9pAWBJA026llMQlwNQJ4K+LBqVSDoQQ+HFpz0/CWP9ZNe/05qjbBwru4hQg=="
+@token= "WtBg80f/FP7diHmWH5O5dzOXzqrR+yrfStLxmkrBrFk7B65RHKqJL1ZxXzayrXalhsIQocx1OSmNDIKZoUW6E2qlKoFqvGrrDmZYCL7/SEp2hINLzLyoQGN0RkMtMfXkS7OkW2xRpgX9e1W1Kt6qEkidKIPWJoLR4HFoMQOPas4jre+myOP2GY1Yh4NDpqosFtMJ6DpoRXu2GIgjP0i69BBT6QHvUSapc0QSbwLd0d+KX5USsEG0u88D0+UZEF2XnwZQTEhoJSaWKs/BzkvtiOt6ZJQ9kOXQyVQyLQ8kQXCTW/7vRo4Pq0Li4SLqLCMEkNd6mkajO9YHdot+0V7OJQ=="
 
 
-# Simply changes password
+# Simply changes company's password
 PUT http://localhost:3000/api/content/change/password
 Content-Type: application/json
 Authorization: Bearer {{token}}
@@ -166,7 +166,15 @@ Authorization: Bearer {{token}}
 ########################################################################################
 ########################################################################################
 
-# Login as company
+# ONLY admin user has access to this info
+GET http://localhost:3000/api/content/files
+Content-Type: application/json
+Authorization: Bearer {{token}}
+########################################################################################
+########################################################################################
+
+
+# Use company account
 GET http://localhost:3000/api/subscription/current-billing
 Content-Type: application/json
 Authorization: Bearer {{token}}
