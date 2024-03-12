@@ -13,6 +13,8 @@ import { _companyAccess } from "../middleware/company.access";
 import { _employeeAccess } from "../middleware/employee.access";
 import multer from "multer";
 import { Mimetypes } from "../models/Mimetypes";
+import { SubscriptionService } from "../services/subscription.service";
+import { SubscriptionParameter } from "../models/subParam";
 
 export const contentRouter = express.Router();
 contentRouter.use(_authenticateToken);
@@ -78,15 +80,32 @@ contentRouter.post(
     (req: Request, res: Response, next: NextFunction) =>
         _validateRequestBody(req, res, next, new EmployeeRequest()),
     async (req: Request, res: Response) => {
-        if (!(req.data.hasOwnProperty("isAdmin") || req.data.hasOwnProperty("companyId")))
-            return res.status(StatusCode.BadRequest).json({ message: Messages.BadRequest });
+        if (!req.data.hasOwnProperty("companyId") && req.data?.isAdmin == false)
+            return res.status(StatusCode.BadToken).json({ message: Messages.BadToken });
+
+        let param: SubscriptionParameter;
+        if (req.data.isAdmin || req.data.companyId) {
+            param = {
+                type: "decodedToken",
+                data: req.data
+            }
+        } else {
+            param = {
+                type: "employeeId",
+                data: req.data.employeeId
+            }
+        }
+
+        console.log(param);
+        if (!await SubscriptionService.EnabledBySubscription(param))
+            return res.status(StatusCode.Conflict).json({ message: "Unabled by subscription" });
+
         const contentService = new ContentService();
         await contentService.AddNewEmployee(req.body, req.data.companyId)
             .then((msg) => res.status(StatusCode.Ok).json(msg))
             .catch((err) => res.status(StatusCode.Conflict).json(err));
     }
 )
-
 
 contentRouter.get(
     "/employee-list",
@@ -125,6 +144,13 @@ contentRouter.post(
     async (req: Request, res: Response) => {
         if (req.file && Mimetypes.includes(req.file.mimetype)) {
             try {
+                let param: SubscriptionParameter = {
+                    type: "employeeId",
+                    data: req.data.employeeId
+                };
+                if (!SubscriptionService.EnabledBySubscription(param))
+                    return res.status(StatusCode.BadRequest).json({ message: "Unabled by subscription" });
+
                 const { all, employees } = req.query;
                 const file = req.file;
 

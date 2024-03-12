@@ -1,4 +1,6 @@
 import { DbContext, DecodedToken } from "..";
+import { Company } from "../entity/company";
+import { Employee } from "../entity/employee";
 import { SubscriptionTier } from "../entity/subscriptionTier";
 import { BasicSubscription } from "../models/Subscription.Basic";
 import { FreeSubscription } from "../models/Subscription.Free";
@@ -49,22 +51,84 @@ export class SubscriptionService {
         return new Promise<boolean>(async (resolve) => {
             switch (param.type) {
                 case "decodedToken": // when /add/employee  (has both company and admin access)
+                    if (param.data.employeeId) {
+                        const employee = await DbContext.getRepository(Employee)
+                            .findOne({
+                                where: {
+                                    employeeId: param.data.employeeId,
+                                    company: {
+                                        subscriptions: {
+                                            isActive: true
+                                        }
+                                    }
+                                },
+                                relations: ["company", "company.employees", "company.subscriptions", "company.subscriptions.subscriptionType"]
+                            });
+                        if (employee) {
+                            const enabled = await SubscriptionService.SubEnablesNewEmployee(employee.company);
+                            return resolve(enabled);
+                        }
+                        return resolve(false);
+                    } else if (param.data.companyId) {
+                        const company = await DbContext.getRepository(Company)
+                            .findOne({
+                                where: {
+                                    companyId: param.data.companyId,
+                                    subscriptions: {
+                                        isActive: true
+                                    }
+                                },
+                                relations: ["subscriptions", "employees", "subscriptions.subscriptionType"]
+                            });
+                        if (company) {
+                            const enabled = await SubscriptionService.SubEnablesNewEmployee(company);
+                            return resolve(enabled);
+                        }
+                        return resolve(false);
+                    }
                     break;
-                case "employeeId": // when /upload/file (has )
+
+                case "employeeId": // when /upload/file (has only employee access)
+                    // data is employeeId itself
+                    const employee = await DbContext.getRepository(Employee)
+                        .findOne({
+                            where: {
+                                employeeId: param.data,
+                                company: {
+                                    subscriptions: {
+                                        isActive: true
+                                    }
+                                }
+                            },
+                            relations: ["company", "company.subscriptions", "company.employees", "company.employees.files", "company.subscriptions.subscriptionType"]
+                        });
+                    if (employee) {
+                        const enabled = await SubscriptionService.SubEnablesNewFile(employee.company);
+                        return resolve(enabled);
+                    }
+                    return resolve(false);
+                    break;
             }
-
+            return resolve(false);
         })
     }
 
-    private static async SubEnablesNewEmployee(): Promise<boolean> {
+    private static async SubEnablesNewEmployee(company: Company): Promise<boolean> {
         return new Promise<boolean>(async (resolve) => {
+            if (company.subscriptions[0].subscriptionType.tierName == "Premium")
+                return resolve(true)
 
+            const employeeCount = company.employees.filter(x => x.isActivated).length;
+            const limit = company.subscriptions[0].subscriptionType.employeeUpperBound;
+            return resolve(employeeCount < limit);
         })
     }
 
-    private static async SubEnablesNewFile(): Promise<boolean> {
+    private static async SubEnablesNewFile(company: Company): Promise<boolean> {
         return new Promise<boolean>(async (resolve) => {
-
+            const fileLimit = company.subscriptions[0].subscriptionType.fileUpperBound;
+            const filesUploaded = company.employees.reduce((prev, curr) => prev + curr.files.length, 0);
+            return resolve(filesUploaded < fileLimit);
         })
     }
 
