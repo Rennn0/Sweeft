@@ -1,0 +1,19 @@
+version: "3"
+services:
+    app:
+        build: .
+        ports:
+            - "3000:3000"
+        depends_on:
+            - sql_server
+        env_file:
+            - .env
+
+    sql_server:
+        image: mcr.microsoft.com/mssql/server
+        environment:
+            ACCEPT_EULA: "Y"
+        ports:
+            - "1433:1433"
+        env_file:
+            - .env

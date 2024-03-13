@@ -1,4 +1,4 @@
-FROM node:20
+FROM node
 
 WORKDIR /usr/src
 
@@ -6,5 +6,6 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
 
 CMD [ "npm","start" ]
