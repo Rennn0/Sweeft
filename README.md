@@ -1,4 +1,4 @@
-Technical assignment source code of Making Science | Sweeft Acceleration Program / Node js. Task
+Technical assignment source code for **_Making Science | Sweeft Acceleration Program / Node js. Task_**
 
 App uses `mssql `and `typeorm`, syncs automatically with db called `Sweeft` with collation `SQL_Latin1_General_CP1_CS_AS`
 
