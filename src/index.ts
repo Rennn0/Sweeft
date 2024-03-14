@@ -67,3 +67,6 @@ DbContext.initialize()
     .catch((error) => console.error(error))
 
 app.listen(port, () => console.log(`Listenin on port ${port}`))
+app.get("/", (req, res) => {
+    res.send(`Hello Sweeft from ${req.headers.host}`);
+})

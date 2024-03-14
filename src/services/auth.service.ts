@@ -12,6 +12,7 @@ import { Messages } from "../responses/response.messages";
 import { ILoginRequest } from "../interfaces/ILoginRequest";
 import { Employee } from "../entity/employee";
 import { IUserLogin } from "../interfaces/IUserLogin";
+import path from "path"
 
 /**
  * I decided to use secret token generation thats lifecicle = server
@@ -35,7 +36,8 @@ export class AuthService extends Email {
             if (!AuthService.ValidateEmail(company.email))
                 return reject(Messages.InvalidEmail);
 
-            fs.readFile("src\\templates\\activation.email.html", "utf8", async (err, template) => {
+            const templatePath = path.join(__dirname, "..", "templates", "activation.email.html");
+            fs.readFile(templatePath, "utf8", async (err, template) => {
                 if (err)
                     return reject(`${Messages.FileOpenError} _ ${err}`);
 
@@ -52,7 +54,8 @@ export class AuthService extends Email {
 
     protected SendEmployeeActivationEmail(employee: Employee, companyName: string, companyEmail: string): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
-            fs.readFile("src\\templates\\employeeActivation.email.html", "utf-8", async (err, template) => {
+            const templatePath = path.join(__dirname, "..", "templates", "employeeActivation.email.html");
+            fs.readFile(templatePath, "utf-8", async (err, template) => {
                 if (err)
                     return reject(`${Messages.FileOpenError} _ ${err}`);
 
