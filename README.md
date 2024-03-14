@@ -2,7 +2,7 @@ Technical assignment source code for **_Making Science | Sweeft Acceleration Pro
 
 App uses `mssql `and `typeorm`, syncs automatically with db 
 
-Then test api from [Postamn workspace](https://www.postman.com/winter-eclipse-230888/workspace/sweeft) . (All necessary explanations are in postman docs as well as in `http.rest` file)
+Test api from [Postamn workspace](https://www.postman.com/winter-eclipse-230888/workspace/sweeft) . (All necessary explanations are in postman docs as well as in `http.rest` file)
 
 **How to run app from docker**
 
