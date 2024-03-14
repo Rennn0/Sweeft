@@ -2,7 +2,7 @@ import "reflect-metadata"
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from "morgan";
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Company } from './entity/company';
 import { SubscriptionType } from './entity/subscriptionType';
 import { SubscriptionTier } from './entity/subscriptionTier';
@@ -64,6 +64,10 @@ app.use("/api/subscription", subscriptionRouter);
 
 DbContext.initialize()
     .then(() => console.log("Connected to database"))
+    .then(async () => {
+        console.log("Seeding Db...");
+        await SeedSubType(DbContext.getRepository(SubscriptionType)).then(() => console.log("Seeding complete (make sure this happens once)"));
+    })
     .catch((error) => console.error(error))
 
 app.listen(port, () => console.log(`Listenin on port ${port}`))
